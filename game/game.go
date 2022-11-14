@@ -11,33 +11,34 @@ import (
 var Games = map[string]*Game{}
 
 type Game struct {
-	creator  *player.Player
-	players  map[string]*PlayerData
-	start    bool
-	id       string
-	lastcard *Card
+	Creator  *player.Player
+	Players  map[string]*PlayerData
+	Start    bool
+	Id       string
+	LastCard *Card
 }
 
 type PlayerData struct {
-	player *player.Player
-	card   map[int]*Card
+	Player *player.Player
+	Card   map[int]*Card
 }
 
 type Card struct {
-	color  string
-	number int
-	isplus bool
-	plus   int
+	color     string
+	number    int
+	isspecial bool
+	special   SpecialCard
 }
 
-func CreateNewGame(creator *player.Player) {
+func CreateNewGame(creator *player.Player) string {
 	id := uuid.New().String()
-	Games[id] = &Game{start: false, id: id, creator: creator, players: map[string]*PlayerData{creator.Name(): &PlayerData{creator, map[int]*Card{}}}}
+	Games[id] = &Game{Start: false, Id: id, Creator: creator, Players: map[string]*PlayerData{creator.Name(): &PlayerData{creator, map[int]*Card{}}}}
+	return id
 }
 
 func JoinGame(player *player.Player, id string) bool {
 	if _, ok := Games[id]; ok {
-		Games[id].players[player.Name()] = &PlayerData{player: player, card: map[int]*Card{}}
+		Games[id].Players[player.Name()] = &PlayerData{Player: player, Card: map[int]*Card{}}
 		return true
 	}
 	return false
@@ -54,21 +55,50 @@ func RandomizeCard() *Card {
 	n := rand.Int() % len(colorlist)
 	color := colorlist[n]
 	number := utils.RandomNumber()
-	isplus := utils.RandomBool()
+	isspecial := utils.RandomBool()
 	plus := 0
-	if isplus {
+	var scard SpecialCard
+	if isspecial {
 		number = 0
 		rand.Seed(time.Now().Unix())
-		pluslist := []int{
-			2, 4,
+		special := []string{
+			"Plus", "Skip",
 		}
-		n = rand.Int() % len(pluslist)
-		plus = pluslist[n]
-		if plus == 4 {
-			color = "Universal"
+		n = rand.Int() % len(special)
+		if special[n] == "Plus" {
+			rand.Seed(time.Now().Unix())
+			pluslist := []int{
+				2, 4,
+			}
+			n = rand.Int() % len(pluslist)
+			plus = pluslist[n]
+			if plus == 4 {
+				color = "Universal"
+			}
+			scard = &Plus{plus: plus}
+		} else {
+			scard = &Skip{}
 		}
+
 	}
-	card := &Card{color: color, number: number, isplus: isplus, plus: plus}
+	card := &Card{color: color, number: number, isspecial: isspecial, special: scard}
 	return card
+
+}
+
+func GetGame(p *player.Player) (*Game, bool) {
+	for _, game := range Games {
+		for _, playerdata := range game.Players {
+			if playerdata.Player.Name() == p.Name() {
+				return game, true
+			}
+		}
+
+	}
+	return nil, false
+}
+
+func (G *Game) StartGame() {
+	G.Start = true
 
 }
