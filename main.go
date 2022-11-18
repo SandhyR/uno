@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/df-mc/dragonfly/server"
+	srvcmd "github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 	"os"
+	"uno/cmd"
 )
 
 func main() {
@@ -21,10 +23,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	registerCommands()
 	srv := conf.New()
 	srv.CloseOnProgramEnd()
-
 	srv.Listen()
 	for srv.Accept(func(p *player.Player) {
 
@@ -55,4 +56,10 @@ func readConfig(log server.Logger) (server.Config, error) {
 		return zero, fmt.Errorf("decode config: %v", err)
 	}
 	return c.Config(log)
+}
+
+func registerCommands() {
+	srvcmd.Register(srvcmd.New("startgame", "", nil, cmd.StartCommand{}))
+	srvcmd.Register(srvcmd.New("joingame", "", nil, cmd.JoinGame{}))
+	srvcmd.Register(srvcmd.New("creategame", "", nil, cmd.CreateGame{}))
 }

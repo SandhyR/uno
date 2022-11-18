@@ -20,7 +20,7 @@ type Game struct {
 
 type PlayerData struct {
 	Player *player.Player
-	Card   map[int]*Card
+	Card   map[string]*Card
 }
 
 type Card struct {
@@ -32,19 +32,19 @@ type Card struct {
 
 func CreateNewGame(creator *player.Player) string {
 	id := uuid.New().String()
-	Games[id] = &Game{Start: false, Id: id, Creator: creator, Players: map[string]*PlayerData{creator.Name(): &PlayerData{creator, map[int]*Card{}}}}
+	Games[id] = &Game{Start: false, Id: id, Creator: creator, Players: map[string]*PlayerData{creator.Name(): &PlayerData{creator, map[string]*Card{}}}}
 	return id
 }
 
 func JoinGame(player *player.Player, id string) bool {
 	if _, ok := Games[id]; ok {
-		Games[id].Players[player.Name()] = &PlayerData{Player: player, Card: map[int]*Card{}}
+		Games[id].Players[player.Name()] = &PlayerData{Player: player, Card: map[string]*Card{}}
 		return true
 	}
 	return false
 }
 
-func RandomizeCard() *Card {
+func RandomizeCard() (*Card, string) {
 	rand.Seed(time.Now().Unix())
 	colorlist := []string{
 		"Merah",
@@ -82,7 +82,7 @@ func RandomizeCard() *Card {
 
 	}
 	card := &Card{color: color, number: number, isspecial: isspecial, special: scard}
-	return card
+	return card, uuid.NewString()
 
 }
 
@@ -100,5 +100,11 @@ func GetGame(p *player.Player) (*Game, bool) {
 
 func (G *Game) StartGame() {
 	G.Start = true
+	for _, p := range G.Players {
+		for i := 0; i < 5; i++ {
+			card, id := RandomizeCard()
+			p.Card[id] = card
+		}
+	}
 
 }

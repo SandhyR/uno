@@ -11,3 +11,7 @@ type Plus struct {
 type Skip struct {
 	SpecialCard
 }
+
+type Reverse struct {
+	SpecialCard
+}
