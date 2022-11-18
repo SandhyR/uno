@@ -1,10 +1,10 @@
 package game
 
 import (
+	"fmt"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/google/uuid"
 	"math/rand"
-	"time"
 	"uno/utils"
 )
 
@@ -23,13 +23,6 @@ type PlayerData struct {
 	Card   map[string]*Card
 }
 
-type Card struct {
-	color     string
-	number    int
-	isspecial bool
-	special   SpecialCard
-}
-
 func CreateNewGame(creator *player.Player) string {
 	id := uuid.New().String()
 	Games[id] = &Game{Start: false, Id: id, Creator: creator, Players: map[string]*PlayerData{creator.Name(): &PlayerData{creator, map[string]*Card{}}}}
@@ -45,33 +38,27 @@ func JoinGame(player *player.Player, id string) bool {
 }
 
 func RandomizeCard() (*Card, string) {
-	rand.Seed(time.Now().Unix())
 	colorlist := []string{
 		"Merah",
 		"Kuning",
 		"Hijau",
 		"Biru",
 	}
-	n := rand.Int() % len(colorlist)
-	color := colorlist[n]
+	color := colorlist[rand.Intn(len(colorlist))]
 	number := utils.RandomNumber()
 	isspecial := utils.RandomBool()
 	plus := 0
 	var scard SpecialCard
 	if isspecial {
 		number = 0
-		rand.Seed(time.Now().Unix())
 		special := []string{
 			"Plus", "Skip",
 		}
-		n = rand.Int() % len(special)
-		if special[n] == "Plus" {
-			rand.Seed(time.Now().Unix())
+		if special[rand.Intn(len(special))] == "Plus" {
 			pluslist := []int{
 				2, 4,
 			}
-			n = rand.Int() % len(pluslist)
-			plus = pluslist[n]
+			plus = pluslist[rand.Intn(len(pluslist))]
 			if plus == 4 {
 				color = "Universal"
 			}
@@ -103,7 +90,9 @@ func (G *Game) StartGame() {
 	for _, p := range G.Players {
 		for i := 0; i < 5; i++ {
 			card, id := RandomizeCard()
+			fmt.Println(card)
 			p.Card[id] = card
+			p.Player.Message("Kamu mendapat kartu ", card.ToString())
 		}
 	}
 

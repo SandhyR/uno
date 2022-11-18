@@ -7,7 +7,7 @@ import (
 
 func RandomBool() bool {
 	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(2) == 1
+	return rand.Intn(100) == 1
 }
 
 func RandomNumber() int {
