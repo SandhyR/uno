@@ -1,16 +1,19 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/df-mc/dragonfly/server/item"
+)
 
 type Card struct {
 	color     string
 	number    int
-	isspecial bool
+	isSpecial bool
 	special   SpecialCard
 }
 
 func (C *Card) ToString() string {
-	if C.isspecial {
+	if C.isSpecial {
 		var text string
 		switch C.special.(type) {
 		case *Reverse:
@@ -23,7 +26,14 @@ func (C *Card) ToString() string {
 			text = "Plus"
 			break
 		}
-		return fmt.Sprintf("%v Warna %v", text, C.color)
+		return fmt.Sprintf("%v %v", text, C.color)
 	}
-	return fmt.Sprintf("Nomor %v Warna %v", C.number, C.color)
+	return fmt.Sprintf("#%v %v", C.number, C.color)
+}
+
+func (C *Card) ToItem() item.Stack {
+	if C.isSpecial {
+		return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("color", C.color).WithValue("special", C.special)
+	}
+	return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("special", false).WithValue("color", C.color).WithValue("number", C.number)
 }

@@ -68,7 +68,7 @@ func RandomizeCard() (*Card, string) {
 		}
 
 	}
-	card := &Card{color: color, number: number, isspecial: isspecial, special: scard}
+	card := &Card{color: color, number: number, isSpecial: isspecial, special: scard}
 	return card, uuid.NewString()
 
 }
@@ -85,15 +85,28 @@ func GetGame(p *player.Player) (*Game, bool) {
 	return nil, false
 }
 
-func (G *Game) StartGame() {
+func (G *Game) StartGame() bool {
 	G.Start = true
+	//if len(G.Players) > 1 {
+	var message string
+	count := 1
+	for _, p := range G.Players {
+		message += fmt.Sprintf("%v. %v \n", count, p.Player.Name())
+		count++
+	}
+
 	for _, p := range G.Players {
 		for i := 0; i < 5; i++ {
 			card, id := RandomizeCard()
 			fmt.Println(card)
 			p.Card[id] = card
 			p.Player.Message("Kamu mendapat kartu ", card.ToString())
+			_, _ = p.Player.Inventory().AddItem(card.ToItem())
 		}
+		p.Player.Message("Urutan Pemain:\n", message)
 	}
+	return true
+	//}
+	//return false
 
 }
