@@ -16,6 +16,7 @@ type Game struct {
 	Start    bool
 	Id       string
 	LastCard *Card
+	Num      int
 }
 
 type PlayerData struct {
@@ -85,6 +86,13 @@ func GetGame(p *player.Player) (*Game, bool) {
 	return nil, false
 }
 
+func (G *Game) CardSession(n int) {
+	pdata := G.GetPlayerByNum(n)
+	p := pdata.Player
+	p.Message("Sekarang giliran kamu!")
+
+}
+
 func (G *Game) StartGame() bool {
 	G.Start = true
 	//if len(G.Players) > 1 {
@@ -96,6 +104,7 @@ func (G *Game) StartGame() bool {
 	}
 	firstcard, _ := RandomizeCard()
 	G.LastCard = firstcard
+	G.Num = 1
 	for _, p := range G.Players {
 		for i := 0; i < 5; i++ {
 			card, id := RandomizeCard()
@@ -106,8 +115,20 @@ func (G *Game) StartGame() bool {
 		p.Player.Message("Urutan Pemain:\n", message)
 		p.Player.Message("Kartu Pertama:", firstcard.ToString())
 	}
+	G.CardSession(1)
 	return true
 	//}
 	//return false
 
+}
+
+func (G *Game) GetPlayerByNum(n int) *PlayerData {
+	count := 1
+	for _, p := range G.Players {
+		count++
+		if count == n {
+			return p
+		}
+	}
+	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"uno/cmd"
-	"uno/handler"
+	"uno/game"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 	srv.Listen()
 	for srv.Accept(func(p *player.Player) {
-		p.Handle(handler.AddToHandler(p))
+		p.Handle(game.AddToHandler(p))
 	}) {
 	}
 }
