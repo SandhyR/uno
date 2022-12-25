@@ -94,16 +94,17 @@ func (G *Game) StartGame() bool {
 		message += fmt.Sprintf("%v. %v \n", count, p.Player.Name())
 		count++
 	}
-
+	firstcard, _ := RandomizeCard()
+	G.LastCard = firstcard
 	for _, p := range G.Players {
 		for i := 0; i < 5; i++ {
 			card, id := RandomizeCard()
-			fmt.Println(card)
 			p.Card[id] = card
 			p.Player.Message("Kamu mendapat kartu ", card.ToString())
 			_, _ = p.Player.Inventory().AddItem(card.ToItem())
 		}
 		p.Player.Message("Urutan Pemain:\n", message)
+		p.Player.Message("Kartu Pertama:", firstcard.ToString())
 	}
 	return true
 	//}
