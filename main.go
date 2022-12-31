@@ -30,6 +30,7 @@ func main() {
 	srv.Listen()
 	for srv.Accept(func(p *player.Player) {
 		p.Handle(game.AddToHandler(p))
+		game.CreateSession(p)
 	}) {
 	}
 }

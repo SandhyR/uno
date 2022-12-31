@@ -12,6 +12,11 @@ func CreateSession(p *player.Player) {
 	sessions[p.Name()] = &Session{}
 }
 
+func GetSession(p string) *Session {
+	return sessions[p]
+
+}
+
 func RemoveSession(p string) {
 	delete(sessions, p)
 }

@@ -18,5 +18,23 @@ func AddToHandler(player *player.Player) *PlayerHandler {
 }
 
 func (p *PlayerHandler) HandleItemUse(context *event.Context) {
-	//TODO: Handle Card
+	session := GetSession(p.player.Name())
+	item, _ := p.player.HeldItems()
+	uuid, ok := item.Value("uuid")
+
+	if !ok {
+		return
+	}
+	special, ok := item.Value("special")
+	if session.game.Giliran.Name() == p.player.Name() {
+		delete(session.game.Players[p.player.Name()].Card, uuid.(string))
+		_ = p.player.Inventory().RemoveItem(item)
+		session.game.NextPlayer(1)
+		if ok {
+			session.game.HandleSpecialCard(special.(SpecialCard))
+			return
+		}
+	} else {
+		p.player.Message("Ini bukan giliran kamu!")
+	}
 }

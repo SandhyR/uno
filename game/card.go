@@ -10,6 +10,7 @@ type Card struct {
 	number    int
 	isSpecial bool
 	special   SpecialCard
+	Id        string
 }
 
 func (C *Card) ToString() string {
@@ -33,7 +34,7 @@ func (C *Card) ToString() string {
 
 func (C *Card) ToItem() item.Stack {
 	if C.isSpecial {
-		return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("color", C.color).WithValue("special", C.special)
+		return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("uuid", C.Id).WithValue("color", C.color).WithValue("special", C.special)
 	}
-	return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("special", false).WithValue("color", C.color).WithValue("number", C.number)
+	return item.NewStack(item.Paper{}, 1).WithCustomName(C.ToString()).WithValue("uuid", C.Id).WithValue("color", C.color).WithValue("number", C.number)
 }

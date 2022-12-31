@@ -17,6 +17,9 @@ type Game struct {
 	Id       string
 	LastCard *Card
 	Num      int
+	Reverse  bool
+	Giliran  *player.Player
+	//lmao pisan
 }
 
 type PlayerData struct {
@@ -53,9 +56,10 @@ func RandomizeCard() (*Card, string) {
 	if isspecial {
 		number = 0
 		special := []string{
-			"Plus", "Skip",
+			"Plus", "Skip", "Reverse",
 		}
-		if special[rand.Intn(len(special))] == "Plus" {
+		switch special[rand.Intn(len(special))] {
+		case "Plus":
 			pluslist := []int{
 				2, 4,
 			}
@@ -63,14 +67,20 @@ func RandomizeCard() (*Card, string) {
 			if plus == 4 {
 				color = "Universal"
 			}
-			scard = &Plus{plus: plus}
-		} else {
-			scard = &Skip{}
+			scard = Plus{plus: plus}
+			break
+		case "Skip":
+			scard = Skip{}
+			break
+		case "Reverse":
+			scard = Reverse{}
+			break
 		}
 
 	}
-	card := &Card{color: color, number: number, isSpecial: isspecial, special: scard}
-	return card, uuid.NewString()
+	id := uuid.NewString()
+	card := &Card{color: color, number: number, isSpecial: isspecial, special: scard, Id: id}
+	return card, id
 
 }
 
@@ -89,8 +99,33 @@ func GetGame(p *player.Player) (*Game, bool) {
 func (G *Game) CardSession(n int) {
 	pdata := G.GetPlayerByNum(n)
 	p := pdata.Player
+	G.Giliran = p
 	p.Message("Sekarang giliran kamu!")
 
+}
+
+func (G *Game) NextPlayer(n int) {
+	if !G.Reverse {
+		G.Num += n
+	} else {
+		G.Num -= n
+	}
+	G.CardSession(G.Num)
+}
+
+func (G *Game) HandleSpecialCard(card SpecialCard) {
+	switch card.(type) {
+	case Plus:
+		break
+	case Skip:
+		G.NextPlayer(2)
+	case Reverse:
+		if G.Reverse {
+			G.Reverse = false
+		} else {
+			G.Reverse = true
+		}
+	}
 }
 
 func (G *Game) StartGame() bool {
